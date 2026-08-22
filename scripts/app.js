@@ -231,4 +231,4 @@ setTimeout(function () {
   if (loader && !loader.classList.contains("loaded")) {
     loader.classList.add("loaded");
   }
-}, 6000);
+}, 6500);
