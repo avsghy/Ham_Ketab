@@ -203,6 +203,20 @@ function waitForImages(container) {
     }),
   );
 }
+function handleStarHover(event) {
+  const star = event.target.closest(".star");
+  if (!star) return;
+  const starsContainer = star.closest(".rating-stars");
+  paintStars(starsContainer, parseInt(star.dataset.value, 10));
+}
+function handleStarHoverEnd(event) {
+  const star = event.target.closest(".star");
+  if (!star) return;
+  const starsContainer = star.closest(".rating-stars");
+  if (starsContainer.contains(event.relatedTarget)) return;
+  const savedValue = parseInt(starsContainer.dataset.rating, 10) || 0;
+  paintStars(starsContainer, savedValue);
+}
 document.addEventListener("DOMContentLoaded", async () => {
   currentUserId = await ensureUser();
   await loadUserRatings();
