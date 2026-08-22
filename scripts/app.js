@@ -191,19 +191,44 @@ document.addEventListener("DOMContentLoaded", async () => {
     .forEach((chip) => chip.addEventListener("click", handleGenreClick));
   document.addEventListener("click", handleStarClick);
 });
-window.addEventListener("load", function () {
+function waitForImages(container) {
+  const imgs = Array.from(container.querySelectorAll("img"));
+  return Promise.all(
+    imgs.map((img) => {
+      if (img.complete) return Promise.resolve();
+      return new Promise((resolve) => {
+        img.addEventListener("load", resolve, { once: true });
+        img.addEventListener("error", resolve, { once: true });
+      });
+    }),
+  );
+}
+document.addEventListener("DOMContentLoaded", async () => {
+  currentUserId = await ensureUser();
+  await loadUserRatings();
+  await loadBrowseBooks(true);
+  await loadRecommendations();
+  await loadTasteProfile();
+  await waitForImages(document.querySelector("#browse-grid"));
+  await waitForImages(document.querySelector("#recommendations-grid"));
   const loader = document.getElementById("page-loader");
   if (loader) loader.classList.add("loaded");
+  document
+    .querySelector("#search-form")
+    .addEventListener("submit", handleSearch);
+  document
+    .querySelector("#load-more")
+    .addEventListener("click", handleLoadMore);
+  document
+    .querySelectorAll(".genre-chip")
+    .forEach((chip) => chip.addEventListener("click", handleGenreClick));
+  document.addEventListener("click", handleStarClick);
+  document.addEventListener("mouseover", handleStarHover);
+  document.addEventListener("mouseout", handleStarHoverEnd);
 });
 setTimeout(function () {
   const loader = document.getElementById("page-loader");
   if (loader && !loader.classList.contains("loaded")) {
     loader.classList.add("loaded");
   }
-}, 5000);
-setTimeout(function () {
-  const loader = document.getElementById("page-loader");
-  if (loader && !loader.classList.contains("loaded")) {
-    loader.classList.add("loaded");
-  }
-}, 5000);
+}, 6000);
