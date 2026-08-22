@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:8000";
+const API_BASE = "https://ham-ketab-1.onrender.com";
 const PAGE_SIZE = 12;
 let currentUserId = null;
 let browseOffset = 0;
