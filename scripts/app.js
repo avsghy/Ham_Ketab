@@ -191,3 +191,19 @@ document.addEventListener("DOMContentLoaded", async () => {
     .forEach((chip) => chip.addEventListener("click", handleGenreClick));
   document.addEventListener("click", handleStarClick);
 });
+window.addEventListener("load", function () {
+  const loader = document.getElementById("page-loader");
+  if (loader) loader.classList.add("loaded");
+});
+setTimeout(function () {
+  const loader = document.getElementById("page-loader");
+  if (loader && !loader.classList.contains("loaded")) {
+    loader.classList.add("loaded");
+  }
+}, 5000);
+setTimeout(function () {
+  const loader = document.getElementById("page-loader");
+  if (loader && !loader.classList.contains("loaded")) {
+    loader.classList.add("loaded");
+  }
+}, 5000);
