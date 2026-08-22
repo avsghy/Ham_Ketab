@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>هم کتاب-دوست و یاور تمام کتاب خوان ها</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style/style.css" />
+    <link rel="shortcut icon" href="Logo/Logo.png" type="image/x-icon" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="index.html" class="logo"
+          ><img class="logoimage" src="Logo/Logo.png" alt=""
+        /></a>
+        <button class="darkmode">
+          <span>🌙</span>
+        </button>
+        <form class="search-form" id="search-form">
+          <input
+            type="text"
+            id="search-input"
+            class="search-input"
+            placeholder="جستجو بر اساس عنوان یا نویسنده..."
+            autocomplete="off"
+          />
+          <button type="submit" class="search-button" aria-label="جستجو">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+        </form>
+        <div class="user-badge" id="user-badge">
+          <span id="user-name">مهمان</span>
+        </div>
+      </div>
+      <div class="scrollbar">
+        <div class="scrolled"></div>
+      </div>
+    </header>
+    <main class="page">
+      <section class="section" id="search-results-section" hidden>
+        <div class="section-heading">
+          <h2>نتایج جستجو</h2>
+          <p class="section-sub">
+            نتایج برای «<span id="search-query-text"></span>»
+          </p>
+        </div>
+        <div class="book-grid" id="search-results-grid"></div>
+      </section>
+      <section class="section" id="recommendations-section">
+        <div class="section-heading">
+          <h2>پیشنهاد شده برای شما</h2>
+          <p class="section-sub">بر اساس امتیازهایی که داده‌اید</p>
+        </div>
+        <div class="book-grid" id="recommendations-grid"></div>
+      </section>
+      <section class="section" id="taste-section">
+        <div class="section-heading">
+          <h2>سلیقه شما</h2>
+          <p class="section-sub">ژانرهایی که بیشترین امتیاز را داده‌اید</p>
+        </div>
+        <div class="taste-bars" id="taste-bars"></div>
+      </section>
+      <section class="section" id="browse-section">
+        <div class="section-heading">
+          <h2>مرور همه کتاب‌ها</h2>
+          <p class="section-sub">
+            چند کتاب را امتیاز دهید تا پیشنهادهای بهتری دریافت کنید
+          </p>
+        </div>
+        <div class="genre-chips" id="genre-chips">
+          <button class="genre-chip active" data-genre="all">همه</button>
+          <button class="genre-chip" data-genre="fantasy">فانتزی</button>
+          <button class="genre-chip" data-genre="science-fiction">
+            علمی-تخیلی
+          </button>
+          <button class="genre-chip" data-genre="mystery">معمایی</button>
+          <button class="genre-chip" data-genre="romance">عاشقانه</button>
+        </div>
+        <div class="book-grid" id="browse-grid"></div>
+        <button class="load-more" id="load-more">نمایش کتاب‌های بیشتر</button>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <p>هم کتاب — یک پروژه دانشگاهی · داده‌های کتاب از goodbooks-10k</p>
+    </footer>
+    <script src="scripts/app.js"></script>
+    <script src="scripts/darkmode.js"></script>
+    <script src="scripts/ScrollAnimation.js"></script>
+  </body>
+</html>
