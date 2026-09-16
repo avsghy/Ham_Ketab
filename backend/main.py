@@ -79,9 +79,48 @@ def user_ratings(user_id: int):
     rows = cursor.fetchall()
     conn.close()
     return {str(row["book_id"]): row["rating"] for row in rows}
+
+
 @app.get("/recommendations/{user_id}")
 def recommendations(user_id: int, limit: int = 8):
     return get_recommendations(user_id, limit)
+
+
 @app.get("/taste/{user_id}")
 def taste(user_id: int):
     return get_taste_profile(user_id)
+
+
+# ---------------------------------------------------------------------------
+# TEMPORARY — delete this endpoint once you've confirmed the database is clean.
+# Finds and removes duplicate ratings caused by the earlier double-listener
+# bug (same user, same book, more than one row). Keeps only the most recent
+# rating per user/book pair.
+# ---------------------------------------------------------------------------
+@app.get("/debug/duplicate-ratings")
+def debug_duplicate_ratings(clean: bool = False):
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT user_id, book_id, COUNT(*) as c
+        FROM ratings
+        WHERE user_id > 100000
+        GROUP BY user_id, book_id
+        HAVING c > 1
+    """)
+    duplicates = [dict(row) for row in cursor.fetchall()]
+
+    removed = None
+    if clean and duplicates:
+        cursor.execute("""
+            DELETE FROM ratings
+            WHERE id NOT IN (
+                SELECT MAX(id) FROM ratings GROUP BY user_id, book_id
+            )
+        """)
+        removed = cursor.rowcount
+        conn.commit()
+
+    conn.close()
+    return {"duplicates_found": duplicates, "rows_removed": removed}

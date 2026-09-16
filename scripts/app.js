@@ -122,20 +122,6 @@ async function handleSearch(event) {
   section.hidden = false;
   section.scrollIntoView({ behavior: "smooth", block: "start" });
 }
-function handleStarHover(event) {
-  const star = event.target.closest(".star");
-  if (!star) return;
-  const starsContainer = star.closest(".rating-stars");
-  paintStars(starsContainer, parseInt(star.dataset.value, 10));
-}
-function handleStarHoverEnd(event) {
-  const star = event.target.closest(".star");
-  if (!star) return;
-  const starsContainer = star.closest(".rating-stars");
-  if (starsContainer.contains(event.relatedTarget)) return;
-  const savedValue = parseInt(starsContainer.dataset.rating, 10) || 0;
-  paintStars(starsContainer, savedValue);
-}
 function handleStarClick(event) {
   const star = event.target.closest(".star");
   if (!star) return;
@@ -188,23 +174,6 @@ async function loadTasteProfile() {
     )
     .join("");
 }
-document.addEventListener("DOMContentLoaded", async () => {
-  currentUserId = await ensureUser();
-  await loadUserRatings();
-  await loadBrowseBooks(true);
-  await loadRecommendations();
-  await loadTasteProfile();
-  document
-    .querySelector("#search-form")
-    .addEventListener("submit", handleSearch);
-  document
-    .querySelector("#load-more")
-    .addEventListener("click", handleLoadMore);
-  document
-    .querySelectorAll(".genre-chip")
-    .forEach((chip) => chip.addEventListener("click", handleGenreClick));
-  document.addEventListener("click", handleStarClick);
-});
 function waitForImages(container) {
   const imgs = Array.from(container.querySelectorAll("img"));
   return Promise.all(
@@ -237,8 +206,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     .querySelectorAll(".genre-chip")
     .forEach((chip) => chip.addEventListener("click", handleGenreClick));
   document.addEventListener("click", handleStarClick);
-  document.addEventListener("mouseover", handleStarHover);
-  document.addEventListener("mouseout", handleStarHoverEnd);
 });
 setTimeout(function () {
   const loader = document.getElementById("page-loader");
@@ -246,3 +213,18 @@ setTimeout(function () {
     loader.classList.add("loaded");
   }
 }, 6500);
+console.log(
+  `%c
+  ░██     ░██                                    ░██     ░██               ░██               ░██        
+  ░██     ░██                                    ░██    ░██                ░██               ░██        
+  ░██     ░██  ░██████   ░█████████████          ░██   ░██    ░███████  ░████████  ░██████   ░████████  
+  ░██████████       ░██  ░██   ░██   ░██ ░██████ ░███████    ░██    ░██    ░██          ░██  ░██    ░██ 
+  ░██     ░██  ░███████  ░██   ░██   ░██         ░██   ░██   ░█████████    ░██     ░███████  ░██    ░██ 
+  ░██     ░██ ░██   ░██  ░██   ░██   ░██         ░██    ░██  ░██           ░██    ░██   ░██  ░███   ░██ 
+  ░██     ░██  ░█████░██ ░██   ░██   ░██         ░██     ░██  ░███████      ░████  ░█████░██ ░██░█████  
+                                                                                                        
+                                                                                                        
+                                                                                                         `,
+  "color: #6366f1;",
+);
+console.log(`%c Made With ❤️`, "font-size=25px; dir:rtl");
