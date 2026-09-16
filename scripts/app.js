@@ -63,6 +63,11 @@ function applyStoredRatings(container) {
     });
   });
 }
+function paintStars(starsContainer, value) {
+  starsContainer.querySelectorAll(".star").forEach((s) => {
+    s.classList.toggle("filled", parseInt(s.dataset.value, 10) <= value);
+  });
+}
 async function loadBrowseBooks(reset) {
   if (reset) browseOffset = 0;
   const genreParam =
@@ -147,6 +152,22 @@ function handleStarClick(event) {
     loadTasteProfile();
   });
 }
+function handleStarHover(event) {
+  const star = event.target.closest(".star");
+  if (!star) return;
+  const starsContainer = star.closest(".rating-stars");
+  paintStars(starsContainer, parseInt(star.dataset.value, 10));
+}
+function handleStarHoverEnd(event) {
+  if (
+    !event.target.classList ||
+    !event.target.classList.contains("rating-stars")
+  )
+    return;
+  const starsContainer = event.target;
+  const savedValue = parseInt(starsContainer.dataset.rating, 10) || 0;
+  paintStars(starsContainer, savedValue);
+}
 async function loadRecommendations() {
   const res = await fetch(`${API_BASE}/recommendations/${currentUserId}`);
   const books = await res.json();
@@ -206,6 +227,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     .querySelectorAll(".genre-chip")
     .forEach((chip) => chip.addEventListener("click", handleGenreClick));
   document.addEventListener("click", handleStarClick);
+  document.addEventListener("mouseover", handleStarHover);
+  document.addEventListener("mouseleave", handleStarHoverEnd, true);
 });
 setTimeout(function () {
   const loader = document.getElementById("page-loader");
