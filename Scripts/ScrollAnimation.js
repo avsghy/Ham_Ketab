@@ -1,5 +1,6 @@
 const scrollbar = document.querySelector(".scrolled");
 window.addEventListener("scroll", function () {
+  if (!scrollbar) return;
   const scrolltop = document.documentElement.scrollTop;
   const docheight = document.documentElement.scrollHeight;
   const windowheight = window.innerHeight;

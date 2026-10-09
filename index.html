@@ -6,21 +6,45 @@
     <title>هم کتاب-دوست و یاور تمام کتاب خوان ها</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style/style.css" />
-    <link rel="shortcut icon" href="Logo/Logo.png" type="image/x-icon" />
+    <link rel="stylesheet" href="Style/style.css" />
   </head>
   <body>
-    <div id="page-loader">
-      <div class="loader-container">
-        <div class="loader-book">
-          <div class="loader-book__page"></div>
-          <div class="loader-book__page"></div>
-          <div class="loader-book__page"></div>
+    <div class="scrollbar"><div class="scrolled"></div></div>
+    <div id="auth-modal" class="auth-modal">
+      <div class="auth-box">
+        <h2 id="auth-title">ورود</h2>
+        <p class="auth-notice" id="auth-notice" hidden></p>
+        <input
+          type="text"
+          id="auth-username"
+          placeholder="نام کاربری"
+          autocomplete="username"
+        />
+        <div class="password-field">
+          <input
+            type="password"
+            id="auth-password"
+            placeholder="رمز عبور"
+            autocomplete="current-password"
+          />
+          <button
+            type="button"
+            id="toggle-password"
+            class="toggle-password"
+            aria-label="نمایش رمز عبور"
+          >
+            🔒
+          </button>
         </div>
-        <p class="loader-text">در حال بارگذاری کتاب‌ها...</p>
+        <button id="auth-submit">ورود</button>
+        <p class="auth-toggle">
+          <span id="auth-toggle-text">حساب کاربری نداری؟ </span
+          ><a href="#" id="auth-toggle-link">ثبت‌نام کن</a>
+        </p>
+        <p class="auth-error" id="auth-error" hidden></p>
       </div>
     </div>
     <header class="site-header">
@@ -28,9 +52,7 @@
         <a href="index.html" class="logo"
           ><img class="logoimage" src="Logo/Logo.png" alt=""
         /></a>
-        <button class="darkmode">
-          <span>🌙</span>
-        </button>
+        <button class="darkmode">🌙</button>
         <form class="search-form" id="search-form">
           <input
             type="text"
@@ -54,11 +76,10 @@
           </button>
         </form>
         <div class="user-badge" id="user-badge">
-          <span id="user-name">مهمان</span>
+          <button class="Login" id="login-btn">ورود</button>
+          <span id="user-name" hidden></span>
+          <button id="logout-btn" class="logout-btn" title="خروج" hidden>خروج</button>
         </div>
-      </div>
-      <div class="scrollbar">
-        <div class="scrolled"></div>
       </div>
     </header>
     <main class="page">
@@ -73,8 +94,8 @@
       </section>
       <section class="section" id="recommendations-section">
         <div class="section-heading">
-          <h2>پیشنهاد شده برای شما</h2>
-          <p class="section-sub">بر اساس امتیازهایی که داده‌اید</p>
+          <h2 id="reco-title">پیشنهاد شده برای شما</h2>
+          <p class="section-sub" id="reco-sub">بر اساس امتیازهایی که داده‌اید</p>
         </div>
         <div class="book-grid" id="recommendations-grid"></div>
       </section>
@@ -100,16 +121,23 @@
           </button>
           <button class="genre-chip" data-genre="mystery">معمایی</button>
           <button class="genre-chip" data-genre="romance">عاشقانه</button>
+          <button class="genre-chip" data-genre="non-fiction">
+            غیرداستانی
+          </button>
+          <button class="genre-chip" data-genre="persian-literature">
+            ادبیات فارسی
+          </button>
         </div>
         <div class="book-grid" id="browse-grid"></div>
         <button class="load-more" id="load-more">نمایش کتاب‌های بیشتر</button>
       </section>
     </main>
     <footer class="site-footer">
-      <p>هم کتاب — یک پروژه دانشگاهی · داده‌های کتاب از goodbooks-10k</p>
+      <p>قفسه — یک پروژه دانشگاهی · داده‌های کتاب از goodbooks-10k</p>
     </footer>
-    <script src="scripts/app.js"></script>
-    <script src="scripts/darkmode.js"></script>
-    <script src="scripts/ScrollAnimation.js"></script>
+    <script src="Scripts/common.js"></script>
+    <script src="Scripts/app.js"></script>
+    <script src="Scripts/ScrollAnimation.js"></script>
+    <script src="Scripts/darkmode.js"></script>
   </body>
 </html>

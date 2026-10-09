@@ -1,8 +1,9 @@
 import csv
 import os
 import ast
-from database import get_connection, create_tables
-DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+from database import get_connection, create_tables, migrate_schema, clean_author
+from add_persian_books import seed_persian_books
+DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 MAX_RATINGS = 200_000
 def _clean_genre_field(raw_value):
     if not raw_value:
@@ -27,7 +28,6 @@ def load_books():
     books_path = os.path.join(DATA_DIR, "books_enriched.csv")
     if not os.path.exists(books_path):
         books_path = os.path.join(DATA_DIR, "books.csv")
-
     if not os.path.exists(books_path):
         print(f"No books CSV found in {DATA_DIR}. Put books.csv (or "
               f"books_enriched.csv) there first.")
@@ -43,27 +43,33 @@ def load_books():
         genre_col = _first_present(fields, "genres", "genre")
         cover_col = _first_present(fields, "image_url", "cover_url")
         rating_col = _first_present(fields, "average_rating", "avg_rating")
+        description_col = _first_present(fields, "description")
         print(f"Reading books from {os.path.basename(books_path)} — "
               f"using columns: id={id_col}, title={title_col}, "
               f"author={author_col}, genre={genre_col}, "
-              f"cover={cover_col}, rating={rating_col}")
+              f"cover={cover_col}, rating={rating_col}, "
+              f"description={description_col}")
         rows_to_insert = []
         for row in reader:
             try:
                 book_id = int(row[id_col])
             except (ValueError, TypeError):
-                continue 
+                continue
+            author_raw = row.get(author_col, "") or ""
+            author = clean_author(author_raw)
             rows_to_insert.append((
                 book_id,
                 row.get(title_col, "") or "",
-                (row.get(author_col, "") or "").split(",")[0].strip(),
+                author,
                 _clean_genre_field(row.get(genre_col, "")) if genre_col else "",
                 row.get(cover_col, "") or "" if cover_col else "",
                 float(row[rating_col]) if rating_col and row.get(rating_col) else None,
+                (row.get(description_col, "") or "").strip() if description_col else "",
             ))
         cursor.executemany(
-            """INSERT OR REPLACE INTO books (id, title, author, genre, cover_url, avg_rating)
-               VALUES (?, ?, ?, ?, ?, ?)""",
+            """INSERT OR REPLACE INTO books
+               (id, title, author, genre, cover_url, avg_rating, description)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
             rows_to_insert
         )
     conn.commit()
@@ -72,8 +78,7 @@ def load_books():
 def load_ratings():
     ratings_path = os.path.join(DATA_DIR, "ratings.csv")
     if not os.path.exists(ratings_path):
-        print(f"No ratings.csv found in {DATA_DIR}. Skipping ratings import "
-              f"(this is fine if you only want book browsing/search for now).")
+        print(f"No ratings.csv found in {DATA_DIR}. Skipping ratings import.")
         return
     conn = get_connection()
     cursor = conn.cursor()
@@ -86,6 +91,7 @@ def load_ratings():
                 break
             batch.append((int(row["user_id"]), int(row["book_id"]), int(row["rating"])))
             count += 1
+        cursor.execute("DELETE FROM ratings WHERE user_id <= 100000")
         cursor.executemany(
             "INSERT INTO ratings (user_id, book_id, rating) VALUES (?, ?, ?)",
             batch
@@ -103,6 +109,8 @@ def reserve_user_id_range():
     conn.close()
 if __name__ == "__main__":
     create_tables()
+    migrate_schema()
     load_books()
     reserve_user_id_range()
     load_ratings()
+    seed_persian_books()
