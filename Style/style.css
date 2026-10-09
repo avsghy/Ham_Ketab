@@ -264,6 +264,7 @@ button {
   color: var(--color-text);
   margin: 0 0 2px;
   line-height: 1.3;
+  padding-top: 4px;
 }
 .book-author {
   font-size: 0.85rem;
