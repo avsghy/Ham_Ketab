@@ -285,7 +285,7 @@ async function handleSearch(event) {
     );
   }
   section.hidden = false;
-  section.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 async function loadRecommendations() {
   const session = getSession();
