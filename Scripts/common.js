@@ -34,11 +34,13 @@ function paintStars(starsContainer, value) {
   });
 }
 function coverMarkup(book) {
-  const hasCover = Boolean(book.cover_url);
-  const image = hasCover
-    ? `<img src="${escapeHtml(book.cover_url)}" alt="${escapeHtml(book.title)}" onerror="this.parentElement.classList.add('no-cover');this.remove()" />`
-    : "";
-  return `<div class="book-cover${hasCover ? "" : " no-cover"}">${image}<span class="cover-fallback">${escapeHtml(book.title)}</span></div>`;
+  const placeholder = "https://placehold.co/300x450?text=No+Cover";
+  const src = book.cover_url ? escapeHtml(book.cover_url) : placeholder;
+  const alt = escapeHtml(book.title);
+  return `<div class="book-cover">
+    <img src="${src}" alt="${alt}"
+         onerror="this.onerror=null;this.src='${placeholder}';" />
+  </div>`;
 }
 
 let serverBanner = null;
