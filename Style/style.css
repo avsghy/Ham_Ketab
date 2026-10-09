@@ -662,7 +662,7 @@ button.darkmode:hover {
 .book-detail-title {
   font-family: var(--font-display);
   font-size: 1.6rem;
-  color: var(--color-navy);
+  color: var(--color-text);
   margin: 0 0 6px;
 }
 
