@@ -40,7 +40,9 @@ function coverMarkup(book) {
     : "";
   return `<div class="book-cover${hasCover ? "" : " no-cover"}">${image}<span class="cover-fallback">${escapeHtml(book.title)}</span></div>`;
 }
+
 let serverBanner = null;
+
 function showServerStatus(kind) {
   if (!serverBanner) {
     serverBanner = document.createElement("div");
@@ -59,14 +61,18 @@ function showServerStatus(kind) {
     .querySelector(".server-retry")
     .addEventListener("click", () => window.location.reload());
 }
+
 function hideServerStatus() {
   if (serverBanner) serverBanner.className = "server-status";
 }
+
 const RETRYABLE_STATUS = [502, 503, 504];
+
 async function apiFetch(path, options = {}, config = {}) {
   const retries = config.retries ?? 2;
   const timeout = config.timeout ?? 70000;
   let lastError = new Error("network");
+
   for (let attempt = 0; attempt <= retries; attempt++) {
     const controller = new AbortController();
     const abortTimer = setTimeout(() => controller.abort(), timeout);
@@ -92,9 +98,11 @@ async function apiFetch(path, options = {}, config = {}) {
       await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)));
     }
   }
+
   showServerStatus("error");
   throw lastError;
 }
+
 async function apiJson(path, options = {}, config = {}) {
   const res = await apiFetch(path, options, config);
   let data = null;
@@ -108,6 +116,7 @@ async function apiJson(path, options = {}, config = {}) {
   }
   return data;
 }
+
 async function submitRating(bookId, value, session) {
   const res = await apiFetch(
     "/rate",
@@ -131,7 +140,9 @@ async function submitRating(bookId, value, session) {
     throw error;
   }
 }
+
 let loginTooltip = null;
+
 function showLoginTooltip(anchor) {
   if (!loginTooltip) {
     loginTooltip = document.createElement("div");
@@ -145,10 +156,13 @@ function showLoginTooltip(anchor) {
   loginTooltip.style.top = `${rect.top}px`;
   loginTooltip.classList.add("show");
 }
+
 function hideLoginTooltip() {
   if (loginTooltip) loginTooltip.classList.remove("show");
 }
+
 let toastTimer = null;
+
 function showToast(html, duration = 3500) {
   let toast = document.querySelector(".toast");
   if (!toast) {
@@ -161,6 +175,7 @@ function showToast(html, duration = 3500) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => toast.classList.remove("show"), duration);
 }
+
 function bindStarInteractions({ onRate, onNeedLogin }) {
   document.addEventListener("mouseover", (event) => {
     const star = event.target.closest(".star");
@@ -172,6 +187,7 @@ function bindStarInteractions({ onRate, onNeedLogin }) {
     }
     paintStars(box, parseInt(star.dataset.value, 10));
   });
+
   document.addEventListener(
     "mouseleave",
     (event) => {
@@ -183,6 +199,7 @@ function bindStarInteractions({ onRate, onNeedLogin }) {
     },
     true,
   );
+
   document.addEventListener("click", (event) => {
     const star = event.target.closest(".star");
     if (!star) return;
