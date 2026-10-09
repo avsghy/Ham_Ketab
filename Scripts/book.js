@@ -18,11 +18,9 @@ const GENRE_FA = {
 function faGenre(g) {
   return GENRE_FA[g] || g;
 }
-
 function getBookIdFromUrl() {
   return new URLSearchParams(window.location.search).get("id");
 }
-
 function renderGenreTags(genreString) {
   if (!genreString) return "";
   return genreString
@@ -35,12 +33,10 @@ function renderGenreTags(genreString) {
 async function loadBook() {
   const bookId = getBookIdFromUrl();
   const container = document.getElementById("book-detail");
-
   if (!bookId) {
     container.innerHTML = `<p class="nobookerror">کتابی مشخص نشده است.</p>`;
     return;
   }
-
   let book;
   try {
     book = await apiJson(`/books/${bookId}`);
@@ -52,7 +48,6 @@ async function loadBook() {
         : `<p class="nobookerror">بارگذاری کتاب انجام نشد.</p>`;
     return;
   }
-
   let existingRating = 0;
   const session = getSession();
   if (session) {
@@ -63,7 +58,6 @@ async function loadBook() {
       console.error(error);
     }
   }
-
   document.title = `${book.title} — قفسه`;
   container.innerHTML = `
     <div class="book-detail-cover">${coverMarkup(book)}</div>
@@ -81,12 +75,10 @@ async function loadBook() {
   `;
   paintStars(document.getElementById("detail-stars"), existingRating);
 }
-
 async function onRate(box, value, session) {
   const previous = parseInt(box.dataset.rating, 10) || 0;
   paintStars(box, value);
   box.dataset.rating = value;
-
   try {
     await submitRating(box.dataset.bookId, value, session);
   } catch (error) {
@@ -104,14 +96,12 @@ async function onRate(box, value, session) {
     }
   }
 }
-
 function onNeedLogin() {
   showToast(
     `برای امتیاز دادن ابتدا <a href="../index.html?login=1">وارد شوید</a>.`,
     7000,
   );
 }
-
 document.addEventListener("DOMContentLoaded", async () => {
   bindStarInteractions({ onRate, onNeedLogin });
   await loadBook();

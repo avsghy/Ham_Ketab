@@ -62,31 +62,6 @@ def verify_password(password: str, salt: str, stored: str) -> bool:
     return secrets.compare_digest(candidate, digest)
 
 
-def validate_name(name: str) -> Optional[str]:
-    if len(name) < 3:
-        return "نام کاربری حداقل ۳ کاراکتر"
-    if len(name) > 30:
-        return "نام کاربری حداکثر ۳۰ کاراکتر"
-    if not re.fullmatch(r"[\w\u0600-\u06FF .-]+", name):
-        return "فقط حروف، عدد، فاصله، نقطه، خط تیره"
-    return None
-
-
-def validate_password(password: str) -> Optional[str]:
-    if len(password) < 8:
-        return "حداقل ۸ کاراکتر"
-    if not re.search(r"[a-z]", password):
-        return "حداقل یک حرف کوچک انگلیسی"
-    if not re.search(r"[A-Z]", password):
-        return "حداقل یک حرف بزرگ انگلیسی"
-    if not re.search(r"[0-9]", password):
-        return "حداقل یک عدد"
-    if not re.search(r"[^A-Za-z0-9]", password):
-        return "حداقل یک کاراکتر ویژه (!@#$%^&*…)"
-    if re.search(r"\s", password):
-        return "بدون فاصله یا کاراکتر خالی"
-    return None
-
 
 def normalize_query(text: str) -> str:
     return text.replace("ي", "ی").replace("ك", "ک").strip()
@@ -165,10 +140,6 @@ def get_book(book_id: int):
 def signup(data: SignupIn):
     name = data.name.strip()
 
-    error = validate_name(name) or validate_password(data.password)
-    if error:
-        raise HTTPException(status_code=400, detail=error)
-
     conn = get_connection()
     existing = conn.execute(
         "SELECT id FROM users WHERE name = ? COLLATE NOCASE", (name,)
@@ -203,10 +174,6 @@ def login(data: LoginIn):
         raise HTTPException(status_code=401, detail=BAD_CREDENTIALS_MSG)
 
     if not row["password_hash"]:
-        error = validate_password(data.password)
-        if error:
-            conn.close()
-            raise HTTPException(status_code=400, detail=error)
         password_hash, salt = hash_password(data.password)
         conn.execute(
             "UPDATE users SET password_hash = ?, password_salt = ? WHERE id = ?",

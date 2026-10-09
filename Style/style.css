@@ -446,9 +446,6 @@ button.darkmode:hover {
   padding: 32px 0;
 }
 .scrollbar {
-  position: absolute;
-  top: 100%;
-  right: 0px;
   z-index: 10;
   height: 0.25rem;
   width: 100%;
@@ -896,7 +893,11 @@ button.darkmode:hover {
   align-items: center;
   justify-content: center;
   padding: 14px;
-  background: linear-gradient(160deg, var(--color-primary-light), var(--color-bg));
+  background: linear-gradient(
+    160deg,
+    var(--color-primary-light),
+    var(--color-bg)
+  );
 }
 
 .book-cover.no-cover .cover-fallback {
