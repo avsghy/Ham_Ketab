@@ -7,7 +7,7 @@ from fastapi import FastAPI, Header, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import recommend
-from add_persian_books import seed_persian_books
+from add_persian_books import seed_persian_books, PERSIAN_BOOKS
 from database import create_tables, get_connection, migrate_schema
 from recommend import get_recommendations, get_taste_profile
 API_VERSION = "3"
@@ -19,10 +19,24 @@ async def lifespan(app: FastAPI):
     create_tables()
     migrate_schema()
     seed_persian_books()
+
+    conn = get_connection()
+    book_count = conn.execute("SELECT COUNT(*) FROM books").fetchone()[0]
+    conn.close()
+
+    if book_count <= len(PERSIAN_BOOKS):
+        try:
+            from setup_db import load_books, load_ratings
+            load_books()
+            load_ratings()
+        except Exception as error:
+            print(f"CSV load skipped: {error}")
+
     try:
         recommend.warm_up()
     except Exception as error:
         print(f"recommender warm-up skipped: {error}")
+
     yield
 app = FastAPI(title="Shelf API", lifespan=lifespan)
 app.add_middleware(
