@@ -6,7 +6,7 @@ function darkmode() {
   if (!body.classList.contains("dark")) {
     localStorage.setItem("theme", "dark");
     body.classList.add("dark");
-    logoimg.src = "Logo/darkmode.png";
+    logoimg ? (logoimg.src = "Logo/darkmode.png") : null;
     darkbtn ? (darkbtn.textContent = "☀️") : null;
   } else {
     localStorage.setItem("theme", "light");
@@ -17,7 +17,7 @@ function darkmode() {
 }
 if (savedtheme == "dark") {
   body.classList.add("dark");
-  logoimg.src = "Logo/darkmode.png";
+  logoimg ? (logoimg.src = "Logo/darkmode.png") : null;
   darkbtn ? (darkbtn.textContent = "☀️") : null;
 } else {
   body.classList.remove("dark");
