@@ -215,6 +215,7 @@ function bindStarInteractions({ onRate, onNeedLogin }) {
     onRate(box, parseInt(star.dataset.value, 10), session);
   });
 }
+
 console.log(
   `%c
   ░██     ░██                                    ░██     ░██               ░██               ░██        
