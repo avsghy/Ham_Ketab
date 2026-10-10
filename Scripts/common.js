@@ -1,4 +1,4 @@
-const API_BASE = "https://ham-ketab.onrender.com";
+const API_BASE = "https://ham-ketab-1.onrender.com";
 const LOGIN_TIP = "برای امتیاز دادن ابتدا وارد شوید";
 function escapeHtml(str) {
   const div = document.createElement("div");
