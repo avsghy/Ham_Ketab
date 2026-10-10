@@ -7,21 +7,21 @@ function darkmode() {
     localStorage.setItem("theme", "dark");
     body.classList.add("dark");
     logoimg.src = "Logo/darkmode.png";
-    darkbtn.textContent = "☀️";
+    darkbtn ? (darkbtn.textContent = "☀️") : null;
   } else {
     localStorage.setItem("theme", "light");
     body.classList.remove("dark");
-    logoimg.src = "Logo/Logo.png";
-    darkbtn.textContent = "🌙";
+    logoimg ? (logoimg.src = "Logo/Logo.png") : null;
+    darkbtn ? (darkbtn.textContent = "🌙") : null;
   }
 }
 if (savedtheme == "dark") {
   body.classList.add("dark");
   logoimg.src = "Logo/darkmode.png";
-  darkbtn.textContent = "☀️";
+  darkbtn ? (darkbtn.textContent = "☀️") : null;
 } else {
   body.classList.remove("dark");
-  logoimg.src = "Logo/Logo.png";
-  darkbtn.textContent = "🌙";
+  logoimg ? (logoimg.src = "Logo/Logo.png") : null;
+  darkbtn ? (darkbtn.textContent = "🌙") : null;
 }
-darkbtn.addEventListener("click", darkmode);
+darkbtn ? darkbtn.addEventListener("click", darkmode) : null;
