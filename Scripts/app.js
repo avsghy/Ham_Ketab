@@ -1,4 +1,4 @@
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 10;
 const NEED_LOGIN_NOTICE =
   "برای امتیاز دادن به کتاب‌ها ابتدا وارد حساب کاربری خود شوید یا ثبت‌نام کنید.";
 let browseOffset = 0;
