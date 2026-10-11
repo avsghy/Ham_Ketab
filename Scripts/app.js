@@ -203,9 +203,9 @@ function renderAuthState() {
 }
 function applyStoredRatings(container) {
   container.querySelectorAll(".book-card").forEach((card) => {
-    const rating = userRatings[card.dataset.bookId];
-    if (!rating) return;
+    const rating = userRatings[card.dataset.bookId] || 0;
     const starsContainer = card.querySelector(".rating-stars");
+    if (!starsContainer) return;
     starsContainer.dataset.rating = rating;
     paintStars(starsContainer, rating);
   });
@@ -234,9 +234,6 @@ function waitForImages(container, timeoutMs = 15000) {
           }
 
           function onError() {
-            // coverMarkup replaces a failed cover with a placeholder. If the
-            // source changed, wait for that replacement too instead of hiding
-            // the loader during the fallback request.
             const currentSrc = img.currentSrc || img.src;
             if (currentSrc && currentSrc !== activeSrc) {
               activeSrc = currentSrc;
@@ -248,7 +245,6 @@ function waitForImages(container, timeoutMs = 15000) {
           img.addEventListener("load", onLoad);
           img.addEventListener("error", onError);
 
-          // Cached images (including a completed failure) should not delay startup.
           if (img.complete) finish();
         }),
     ),
@@ -417,8 +413,6 @@ async function onRate(box, value, session) {
     }
   }
 }
-// Hide the loader as soon as the initial content and cover-image attempts
-// are complete. The 6.5-second timer is only a failsafe for slow/hung requests.
 const LOADER_FAILSAFE_MS = 6500;
 let loaderHidden = false;
 
@@ -507,12 +501,8 @@ async function init() {
   } catch (error) {
     console.error(error);
   } finally {
-    // Network failures also count as a completed initial attempt, so the
-    // overlay can eventually clear and the retry banner remains accessible.
     markInitialPageReady();
   }
 }
 document.addEventListener("DOMContentLoaded", init);
-// Do not keep visitors staring at the loader longer than 6.5 seconds.
-// If content becomes ready earlier, markInitialPageReady() hides it immediately.
 setTimeout(hidePageLoader, LOADER_FAILSAFE_MS);

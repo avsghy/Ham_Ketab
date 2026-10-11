@@ -1,13 +1,18 @@
 import ast
 import os
 import sqlite3
+
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 DB_PATH = os.path.join(DATA_DIR, "books.db")
+
+
 def get_connection():
     os.makedirs(DATA_DIR, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+
 def create_tables():
     conn = get_connection()
     cursor = conn.cursor()
@@ -46,6 +51,8 @@ def create_tables():
     conn.commit()
     conn.close()
     print(f"Tables ready in {DB_PATH}")
+
+
 def clean_author(raw):
     if not raw:
         return ""
@@ -59,6 +66,8 @@ def clean_author(raw):
             pass
         raw = raw.strip("[]")
     return raw.split(",")[0].strip().strip("[]'\" ").strip()
+
+
 def migrate_schema():
     conn = get_connection()
     cursor = conn.cursor()
@@ -93,6 +102,29 @@ def migrate_schema():
         )
     conn.commit()
     conn.close()
+
+
+def ensure_user_id_sequence(min_id=100001):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT seq FROM sqlite_sequence WHERE name = 'users'")
+    row = cursor.fetchone()
+    current = row[0] if row else 0
+    target = min_id - 1
+    if current < target:
+        cursor.execute(
+            "INSERT OR IGNORE INTO users (id, name) VALUES (?, ?)",
+            (target, "__seed_placeholder__"),
+        )
+        cursor.execute(
+            "DELETE FROM users WHERE id = ? AND name = '__seed_placeholder__'",
+            (target,),
+        )
+        conn.commit()
+    conn.close()
+
+
 if __name__ == "__main__":
     create_tables()
     migrate_schema()
+    ensure_user_id_sequence()

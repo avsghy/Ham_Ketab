@@ -8,16 +8,25 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import recommend
 from add_persian_books import seed_persian_books, PERSIAN_BOOKS
-from database import create_tables, get_connection, migrate_schema
+from database import (
+    create_tables,
+    get_connection,
+    migrate_schema,
+    ensure_user_id_sequence,
+)
 from recommend import get_recommendations, get_taste_profile
+
 API_VERSION = "3"
 PBKDF2_ROUNDS = 200_000
 LOGIN_REQUIRED_MSG = "برای امتیاز دادن ابتدا وارد حساب کاربری خود شوید"
 BAD_CREDENTIALS_MSG = "نام کاربری یا رمز عبور اشتباه است"
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_tables()
     migrate_schema()
+    ensure_user_id_sequence()
     seed_persian_books()
 
     conn = get_connection()
@@ -38,6 +47,8 @@ async def lifespan(app: FastAPI):
         print(f"recommender warm-up skipped: {error}")
 
     yield
+
+
 app = FastAPI(title="Shelf API", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
@@ -45,6 +56,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 def hash_password(password: str, salt: Optional[str] = None):
     if salt is None:
         salt = secrets.token_hex(16)
@@ -52,6 +65,8 @@ def hash_password(password: str, salt: Optional[str] = None):
         "sha256", password.encode(), salt.encode(), PBKDF2_ROUNDS
     ).hex()
     return f"pbkdf2${PBKDF2_ROUNDS}${digest}", salt
+
+
 def verify_password(password: str, salt: str, stored: str) -> bool:
     if stored.startswith("pbkdf2$"):
         _, rounds, digest = stored.split("$", 2)
@@ -62,18 +77,28 @@ def verify_password(password: str, salt: str, stored: str) -> bool:
         candidate = hashlib.sha256((salt + password).encode()).hexdigest()
         digest = stored
     return secrets.compare_digest(candidate, digest)
+
+
 def normalize_query(text: str) -> str:
     return text.replace("ي", "ی").replace("ك", "ک").strip()
+
+
 class SignupIn(BaseModel):
     name: str
     password: str
+
+
 class LoginIn(BaseModel):
     name: str
     password: str
+
+
 class RatingIn(BaseModel):
     user_id: int
     book_id: int
     rating: int
+
+
 @app.get("/")
 def root():
     conn = get_connection()
@@ -81,6 +106,8 @@ def root():
     users = conn.execute("SELECT COUNT(*) FROM users").fetchone()[0]
     conn.close()
     return {"status": "ok", "api_version": API_VERSION, "books": books, "users": users}
+
+
 @app.get("/books")
 def list_books(limit: int = 24, offset: int = 0, genre: Optional[str] = None):
     limit = max(1, min(limit, 100))
@@ -97,6 +124,8 @@ def list_books(limit: int = 24, offset: int = 0, genre: Optional[str] = None):
         ).fetchall()
     conn.close()
     return [dict(row) for row in rows]
+
+
 @app.get("/books/search")
 def search_books(q: str, limit: int = 24):
     limit = max(1, min(limit, 100))
@@ -108,6 +137,8 @@ def search_books(q: str, limit: int = 24):
     ).fetchall()
     conn.close()
     return [dict(row) for row in rows]
+
+
 @app.get("/books/{book_id}")
 def get_book(book_id: int):
     conn = get_connection()
@@ -116,6 +147,8 @@ def get_book(book_id: int):
     if not row:
         raise HTTPException(status_code=404, detail="کتاب پیدا نشد")
     return dict(row)
+
+
 @app.post("/signup")
 def signup(data: SignupIn):
     name = data.name.strip()
@@ -136,6 +169,8 @@ def signup(data: SignupIn):
     user_id = cursor.lastrowid
     conn.close()
     return {"id": user_id, "name": name, "token": token}
+
+
 @app.post("/login")
 def login(data: LoginIn):
     name = data.name.strip()
@@ -160,6 +195,8 @@ def login(data: LoginIn):
     conn.commit()
     conn.close()
     return {"id": row["id"], "name": row["name"], "token": token}
+
+
 def require_login(user_id: int, authorization: Optional[str]):
     token = (authorization or "").replace("Bearer", "").strip()
     if not token:
@@ -169,6 +206,8 @@ def require_login(user_id: int, authorization: Optional[str]):
     conn.close()
     if not row or not row["token"] or not secrets.compare_digest(row["token"], token):
         raise HTTPException(status_code=401, detail=LOGIN_REQUIRED_MSG)
+
+
 @app.post("/rate")
 def rate_book(rating: RatingIn, authorization: Optional[str] = Header(default=None)):
     require_login(rating.user_id, authorization)
@@ -187,6 +226,8 @@ def rate_book(rating: RatingIn, authorization: Optional[str] = Header(default=No
     conn.commit()
     conn.close()
     return {"status": "saved"}
+
+
 @app.get("/ratings/{user_id}")
 def user_ratings(user_id: int):
     conn = get_connection()
@@ -195,9 +236,13 @@ def user_ratings(user_id: int):
     ).fetchall()
     conn.close()
     return {str(row["book_id"]): row["rating"] for row in rows}
+
+
 @app.get("/recommendations/{user_id}")
 def recommendations(user_id: int, limit: int = 8):
     return get_recommendations(user_id, max(1, min(limit, 24)))
+
+
 @app.get("/taste/{user_id}")
 def taste(user_id: int):
     return get_taste_profile(user_id)
