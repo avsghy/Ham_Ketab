@@ -210,16 +210,48 @@ function applyStoredRatings(container) {
     paintStars(starsContainer, rating);
   });
 }
-function waitForImages(container) {
+function waitForImages(container, timeoutMs = 15000) {
   const imgs = Array.from(container.querySelectorAll("img"));
   return Promise.all(
-    imgs.map((img) => {
-      if (img.complete) return Promise.resolve();
-      return new Promise((resolve) => {
-        img.addEventListener("load", resolve, { once: true });
-        img.addEventListener("error", resolve, { once: true });
-      });
-    }),
+    imgs.map(
+      (img) =>
+        new Promise((resolve) => {
+          let settled = false;
+          let activeSrc = img.currentSrc || img.src;
+          const timeout = setTimeout(finish, timeoutMs);
+
+          function finish() {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timeout);
+            img.removeEventListener("load", onLoad);
+            img.removeEventListener("error", onError);
+            resolve();
+          }
+
+          function onLoad() {
+            finish();
+          }
+
+          function onError() {
+            // coverMarkup replaces a failed cover with a placeholder. If the
+            // source changed, wait for that replacement too instead of hiding
+            // the loader during the fallback request.
+            const currentSrc = img.currentSrc || img.src;
+            if (currentSrc && currentSrc !== activeSrc) {
+              activeSrc = currentSrc;
+              return;
+            }
+            finish();
+          }
+
+          img.addEventListener("load", onLoad);
+          img.addEventListener("error", onError);
+
+          // Cached images (including a completed failure) should not delay startup.
+          if (img.complete) finish();
+        }),
+    ),
   );
 }
 async function loadBrowseBooks(reset) {
@@ -385,9 +417,20 @@ async function onRate(box, value, session) {
     }
   }
 }
-function hideLoader() {
+// Hide the loader as soon as the initial content and cover-image attempts
+// are complete. The 6.5-second timer is only a failsafe for slow/hung requests.
+const LOADER_FAILSAFE_MS = 6500;
+let loaderHidden = false;
+
+function hidePageLoader() {
+  if (loaderHidden) return;
   const loader = document.querySelector("#page-loader");
   if (loader) loader.classList.add("loaded");
+  loaderHidden = true;
+}
+
+function markInitialPageReady() {
+  hidePageLoader();
 }
 function bindStaticListeners() {
   document
@@ -464,8 +507,12 @@ async function init() {
   } catch (error) {
     console.error(error);
   } finally {
-    hideLoader();
+    // Network failures also count as a completed initial attempt, so the
+    // overlay can eventually clear and the retry banner remains accessible.
+    markInitialPageReady();
   }
 }
 document.addEventListener("DOMContentLoaded", init);
-setTimeout(hideLoader, 6500);
+// Do not keep visitors staring at the loader longer than 6.5 seconds.
+// If content becomes ready earlier, markInitialPageReady() hides it immediately.
+setTimeout(hidePageLoader, LOADER_FAILSAFE_MS);

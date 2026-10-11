@@ -3,26 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>هم کتاب-دوست و یاور تمام کتاب خوان ها</title>
+    <meta name="theme-color" content="#f6f8fc" />
+    <meta name="description" content="مشاهده جزئیات کتاب، نویسنده، ژانرها و ثبت امتیاز در هم‌کتاب." />
+    <title>هم‌کتاب — جزئیات کتاب</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
       href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="icon" href="../Logo/Logo.png" type="image" />
+    <link rel="icon" href="../Logo/Logo.png" type="image/png" />
     <link rel="stylesheet" href="../Style/style.css" />
   </head>
-  <body>
+  <body class="book-page">
     <header class="site-header">
       <div class="header-inner">
-        <a href="../index.html" class="logo">هم‌کتاب</a>
+        <a href="../index.html" class="logo" aria-label="بازگشت به هم‌کتاب">هم‌کتاب</a>
+        <button
+          class="darkmode"
+          type="button"
+          aria-label="تغییر حالت روشن و تاریک"
+          title="تغییر حالت روشن و تاریک"
+        >🌙</button>
         <a href="../index.html" class="back-link">← بازگشت به صفحه اصلی</a>
       </div>
     </header>
 
     <main class="page">
-      <section class="book-detail" id="book-detail">
-        <p class="section-sub">در حال بارگذاری...</p>
+      <section class="book-detail" id="book-detail" aria-live="polite" aria-busy="true">
+        <p class="section-sub">در حال بارگذاری اطلاعات کتاب...</p>
       </section>
     </main>
 
@@ -34,5 +42,16 @@
     <script src="../Scripts/book.js"></script>
     <script src="../Scripts/darkmode.js"></script>
     <script src="../Scripts/ScrollAnimation.js"></script>
+    <script>
+      // Keep the loading region announced correctly for assistive technology.
+      const detailContainer = document.getElementById("book-detail");
+      if (detailContainer) {
+        const observer = new MutationObserver(() => {
+          const stillLoading = detailContainer.querySelector(".section-sub")?.textContent?.includes("بارگذاری");
+          detailContainer.setAttribute("aria-busy", stillLoading ? "true" : "false");
+        });
+        observer.observe(detailContainer, { childList: true, subtree: true, characterData: true });
+      }
+    </script>
   </body>
 </html>
